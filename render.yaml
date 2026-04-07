@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: henet-wave-api
+    env: docker
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      - key: HENET_API_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        value: https://www.teddyallen.com

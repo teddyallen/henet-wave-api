@@ -14,12 +14,21 @@ from .physics import compute_batch
 BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_DIR = BASE_DIR / 'static'
 API_KEY = os.getenv('HENET_API_KEY')
-CORS_ORIGINS = [o.strip() for o in os.getenv('CORS_ORIGINS', '*').split(',') if o.strip()]
+
+CORS_ORIGINS = [
+    o.strip()
+    for o in os.getenv(
+        'CORS_ORIGINS',
+        'http://www.teddyallen.com,https://www.teddyallen.com,http://teddyallen.com,https://teddyallen.com'
+    ).split(',')
+    if o.strip()
+]
 
 app = FastAPI(title='Henet Wave API', version='1.0.0')
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CORS_ORIGINS if CORS_ORIGINS != ['*'] else ['*'],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=['*'],
     allow_headers=['*'],

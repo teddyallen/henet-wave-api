@@ -130,15 +130,15 @@ def build_spectrum(tp: float, swell_type: str = 'manual', n: int = 17) -> List[T
 
 def compute_swell(inp: SwellInput) -> PerSwellResponse:
     wave_to = wrap360(inp.wind_dir_from_deg + 180.0)
+    swell_from = wrap360(wave_to + 180.0)
     growth = wave_growth(inp.wind_mph, inp.fetch_km, inp.duration_hr)
 
     ctr_dist = haversine(inp.src_lat, inp.src_lon, inp.tgt_lat, inp.tgt_lon)
     ctr_brng = bearing(inp.src_lat, inp.src_lon, inp.tgt_lat, inp.tgt_lon)
     ex_lat, ex_lon = dest_point(inp.src_lat, inp.src_lon, wave_to, inp.fetch_km / 2.0)
     trav_dist = haversine(ex_lat, ex_lon, inp.tgt_lat, inp.tgt_lon)
-    trav_brng = bearing(ex_lat, ex_lon, inp.tgt_lat, inp.tgt_lon)
 
-    ang = angular_correction(wave_to, trav_brng, inp.spread_exponent_n)
+    ang = angular_correction(wave_to, bearing(ex_lat, ex_lon, inp.tgt_lat, inp.tgt_lon), inp.spread_exponent_n)
     dec = decay_correction(trav_dist, inp.decay_km)
 
     tp = growth['Tp']
@@ -194,8 +194,8 @@ def compute_swell(inp: SwellInput) -> PerSwellResponse:
         id=inp.id,
         enabled=inp.enabled,
         swell_type=inp.swell_type,
-        wave_to_deg=round(trav_brng, 3),
-        swell_from_deg=round(wrap360(trav_brng + 180.0), 3),
+        wave_to_deg=round(wave_to, 3),
+        swell_from_deg=round(swell_from, 3),
         source_to_target_distance_km=round(ctr_dist, 3),
         source_to_target_bearing_deg=round(ctr_brng, 3),
         fetch_exit_lat=round(ex_lat, 5),
@@ -282,4 +282,3 @@ def compute_batch(swells: Iterable[SwellInput]) -> Tuple[List[PerSwellResponse],
             )
         )
     return results, combined, x_mode
-
